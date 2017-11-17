@@ -1,0 +1,14 @@
+{% set cestas=pedido.cestas %}
+
+{% if cestas %}
+<div class="cestas">
+<h1>Cestas:</h1>
+<ul>
+{% for cesta in cestas %}
+	<li>
+		<span>{{ cesta.get_catidades() }}</span>
+	</li>
+{% endfor %}
+</ul>
+</div>
+{% endif %}

@@ -1,0 +1,26 @@
+{% set productores=pedido.get_productores(tipo) %}
+
+{% if productores %}
+<div class="pesar">
+<h1>Pesar:</h1>
+
+{% for productor in productores %}
+	<div class="productor">
+	<h2 class="h2{{loop.index}}">{{ productor.nombre }}</h2>
+	<ul>
+		{% for producto in productor.get_productos(tipo) %}
+		<li class="ul">{{ producto.nombre }}
+			<ul>
+			{% for reparto in producto.get_repartos() %}
+				<li>
+					<span>{{ reparto.get_str() }}</span>
+				</li>
+			{% endfor %}
+			</ul>
+		</li>
+		{% endfor %}
+	</ul>
+	</div>
+{% endfor %}
+</div>
+{% endif %}

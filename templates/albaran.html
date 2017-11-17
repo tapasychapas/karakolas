@@ -1,0 +1,21 @@
+{% set productores=pedido.get_productores() %}
+
+{% if productores %}
+<div class="albaran">
+<h1>Albaran:</h1>
+
+{% for productor in productores %}
+	<div class="productor">
+	<h2 class="h2{{loop.index}}">{{ productor.nombre }}</h2>
+	<ul>
+		{% set productos=productor.get_productos() %}
+		
+		{% for producto in productos %}
+		<li><span>{{ producto.albaran }}</span></li>
+		{% endfor %}
+	</ul>
+	</div>
+{% endfor %}
+
+</div>
+{% endif %}

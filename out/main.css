@@ -1,0 +1,102 @@
+body {
+    font-family: "Droid Sans Mono","Consolas", Monaco, 'MonacoRegular', 'Courier New', monospace;
+    /*background: #000000;
+    color: #ffffff;*/
+    line-height: 1.2em;
+	font-size: 0.75em;
+}
+ul, li {
+	padding: 0em;
+	margin: 0em;
+    list-style: none;
+}
+li > span, div.ul > span {
+	white-space: pre;
+}
+.ul {
+	margin-bottom: 5px;
+}
+.pesar, .nopesar, .albaran {
+	margin-bottom: 10px;
+}
+h2 {
+	margin-top: 10px;
+	margin-bottom: 10px;
+	word-spacing: -0.3em;
+}
+/*
+h2.h21 {
+	margin-top: 0em;
+}
+*/
+table {
+	width: 100%;
+}
+table td {
+	vertical-align: top;
+	width: 33%;
+}
+table td.col2 {
+	border-left: 1px solid black;
+	border-right: 1px solid black;
+}
+table td.col2, table td.col3 {
+	padding-left: 10px;
+}
+table td.col2 {
+	padding-right: 10px;
+}
+table td div:first-child h2:first-child, table td > h2:first-child {
+	margin-top: 0em;
+}
+.ui-sortable-handle {
+    cursor: move;
+    cursor: -webkit-grab;
+    cursor: grab;
+}
+.ui-sortable-helper { 
+    cursor: grabbing; 
+    cursor: -webkit-grabbing;
+	background-color: white;
+    padding: 5px;
+}
+
+hr {
+	border-top: 1px solid black;
+	height: 0px;
+	border-bottom: none;
+	border-right: none;
+	border-left: none;
+	margin: 0;
+	padding: 5px;
+}
+hr.ocultar {
+	border-color: red;
+}
+h1 {
+	display: none;
+}
+span.up, span.down {
+    color: red;
+    cursor: pointer;
+    display: inline-block;
+    margin-left: 0.2em;
+    padding-right: 1px;
+    padding-left: 1px;
+}
+table td:first-of-type h2:first-of-type span.up {
+    display:none;
+}
+table td:last-of-type h2:last-of-type span.down {
+    display:none;
+}
+
+@media print {
+    body > * {page-break-inside: avoid;}
+	body > hr.ocultar {display:none;}
+    span.up, span.down {display:none;}
+}
+@page  
+{ 
+    margin: 5mm 5mm 5mm 5mm;  
+} 
