@@ -467,7 +467,6 @@ class Karakolas(Session):
             f.write(self.response.content)
             name = f.name
         if name:
-            print (name)
             p = Pedido(name)
             p.fecha = fecha
             return p
