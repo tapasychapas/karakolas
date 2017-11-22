@@ -21,7 +21,7 @@ sp = re.compile(r"\s+", re.MULTILINE | re.UNICODE)
 trim = re.compile(r"\s*\.\s*", re.MULTILINE | re.UNICODE)
 peso = re.compile(r"^(.*?)(\d+gr)$", re.MULTILINE | re.UNICODE)
 
-martes = next_weekday(1).strftime("%y-%m-%d")
+martes = next_weekday(1).strftime("%Y-%m-%d")
 parser = argparse.ArgumentParser(description='Pedido del grupo de consumo')
 parser.add_argument('--pesar', action='store_true')
 parser.add_argument(
