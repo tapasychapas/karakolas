@@ -85,7 +85,7 @@ class Reparto:
         if self.mas1:
             r = self.patron % (self.cantidad, self.nombre_producto)
             if self.cantidad % 1 != 0:
-                r = re.sub(r"^(\s+\d+)", r"\1."+ str(self.cantidad).split(".")[1], r)
+                r = re.sub(r"^(\s+)\d+", r"\1\b"+ str(self.cantidad), r)
             return r
         else:
             return "  " + self.nombre_producto
