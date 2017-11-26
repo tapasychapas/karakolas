@@ -83,7 +83,10 @@ class Reparto:
                 s += " " + self.muletilla
             return s
         if self.mas1:
-            return self.patron % (self.cantidad, self.nombre_producto)
+            r = self.patron % (self.cantidad, self.nombre_producto)
+            if self.cantidad % 1 != 0:
+                r = re.sub(r"^(\s+\d+)", r"\1."+ str(self.cantidad).split(".")[1], r)
+            return r
         else:
             return "  " + self.nombre_producto
 
