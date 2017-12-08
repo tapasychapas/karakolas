@@ -46,7 +46,7 @@ function hermanos(h2) {
 $(document).ready(function(){
     if ($("body").is(".simple")) return;
 	if ($("table").length==0) return;
-    $("div.cortar table").draggable();
+    $("div.cortar table").draggable().css("cursor", "move");
 
     _do_group("table.pesar, table.nopesar");
 

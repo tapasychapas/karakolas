@@ -88,10 +88,14 @@ table td:first-of-type h2:first-of-type span.up {
 table td:last-of-type h2:last-of-type span.down {
     display:none;
 }
-fieldset.instruciones {
+fieldset.instruciones, .pie {
     border: 1px solid red;
 }
-body.simple fieldset.instruciones {
+.pie {
+    padding: 10px;
+    text-align: right;
+}
+body.simple fieldset.instruciones, body.simple .pie {
     display: none;
 }
 fieldset.instruciones legend {
@@ -135,6 +139,7 @@ div.cortar table tfoot td {
     span.up, span.down {display:none;}
     h1 { display: none; }
     span.noprint {display: none;}
+    .pie {display: none;}
 }
 @page  
 { 
