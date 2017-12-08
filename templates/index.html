@@ -8,13 +8,50 @@
 		<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" type="text/javascript"></script>
         <script src="main.js" type="text/javascript"></script>
 	</head>
-	<body>
+	<body class="simple">
+        <fieldset class="instruciones">
+            <legend>Instrucciones</legend>
+            <ol>
+                <li>El objetivo de esta página es imprimir en el <b>mínimo número de hojas</b> un listado para el reparto del {{ pedido.fecha or 'grupo de consumo'}}</li>
+                <li>Todo lo que ves en rojo o dentro de un recuadro rojo no aparecerá al imprimir esta página</li>
+                <li>Las rayas horizontales se volverán rojas si haces click en ellas</li>
+                <li>Los items se pueden mover de una columna a otra arrastrándolos o con las flechas rojas</li>
+                <li>La idea es que redistribuyas la información para que las columnas sean lo más parejas posibles en su extensión vertical y por lo tanto todo quepa en el mínimo espacio posible</li>
+                <li>Si no vas a imprimir esto y/o prefieres ver la información en una sola columna entonces te viene mejor <a href="simple.html">esto</a></li>
+            </ol>
+            <p><b>Otras aclaraciones:</b></p>
+            <p>
+                La sección <b>Albarán</b> es para compararla con los albaranes entregados por los productores, de manera que antes de empezar el reparto sepamos si ha habido alguna incidencia, es decir, sabremos si de algún producto hay una cantidad distinta a lo pedido antes de empezar a repartirlo así que ajustaremos el reparto desde el principio y no después de haber pesado varias cestas evitando tener que deshacer lo ya repartido.
+            </p>
+            <p>
+                Si en la sección <b>No pesar</b> sale un producto con la marca (*) significa que dicho producto normalmente se pesa pero solo ha pedido de él una cesta,
+                por lo tanto (si sabemos que no ha habido ninguna incidencia, es decir, que el productor ha traído lo que se le pidió) podemos echarlo todo
+                en su cesta destino y ya esta, no hace falta perder el tiempo pensándolo.
+            </p>
+            <p>
+                La sección <b>Cestas</b> es el listado de todas las cestas que han pedido algo en este reparto, con una estimación de los productos totales que ha pedido. De esta manera no solo sabemos cuantas cajas necesitamos para hacer el reparto si no también de que tamaño.
+            </p>
+            <p>
+                La sección <b>Cortar</b> es una representación de los productos que hay que trocear para saber en cuantas partes hacerlo y cómo, suponiendo que el producto venga en una sola pieza. ¿Cómo se usa?:
+            </p>
+            <ol>
+                <li>Al lado del nombre del producto se pone el peso total</li>
+                <li>En la segunda fila de la tabla se pone el resultado de multiplicar el producto total por las fracciones</li>
+                <li>Con esta información una persona se pone a cortar el producto</li>
+                <li>Pesa los trozos cortados y ajusta en función de cuanto se ha pasado o quedado corto</li>
+                <li>Cuando da por bueno el resultado anota los pesos finales en la tercera fila de la tabla</li>
+                <li>Reparte los trozos en las cestas</li>
+            </ol>
+            <p>Cualquiera de estas secciones no aparecerá si no hay nada que mostrar en ella.</p>
+            <p>Acuérdate de eliminar o reducir los margenes de impresión y usar la vista previa de impresión antes de gastar papel para asegurarte de que el resultado es optimo, la idea es obtener algo como <a href="ejemplo.pdf" target="_blank">este ejemplo</a>.</p>
+            <p>Con esto harás todo el reparto sin usar el ordenador. Simplemente apunta en el papel las cantidades que se desvíen en más de 10 gramos para luego pasarlas a karakolas al final del todo.</p>
+        </fieldset>
 		{% with tipo=1 %}
 		{% include "pesar.html" %}
 		{% endwith %}
 		
 		<hr/>
-		
+        
 		{% with tipo=0 %}
 		{% include "no_pesar.html" %}
 		{% endwith %}
@@ -26,6 +63,8 @@
 		<hr/>
 		
 		{% include "cestas.html" %}
+        
+		{% include "cortar.html" %}
 		
 	</body>
 </html>

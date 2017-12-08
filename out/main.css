@@ -1,11 +1,9 @@
 body {
     font-family: "Droid Sans Mono","Consolas", Monaco, 'MonacoRegular', 'Courier New', monospace;
-    /*background: #000000;
-    color: #ffffff;*/
     line-height: 1.2em;
 	font-size: 0.75em;
 }
-ul, li {
+div ul, div li {
 	padding: 0em;
 	margin: 0em;
     list-style: none;
@@ -73,8 +71,8 @@ hr {
 hr.ocultar {
 	border-color: red;
 }
-h1 {
-	display: none;
+body.tabla h1 {
+    color: red;
 }
 span.up, span.down {
     color: red;
@@ -90,11 +88,53 @@ table td:first-of-type h2:first-of-type span.up {
 table td:last-of-type h2:last-of-type span.down {
     display:none;
 }
+fieldset.instruciones {
+    border: 1px solid red;
+}
+body.simple fieldset.instruciones {
+    display: none;
+}
+fieldset.instruciones legend {
+    font-weight: bold;
+    padding-right: 1em;
+    padding-left: 1em;
+}
+div.cortar {
+    margin-top: 16px;
+}
+div.cortar table {
+    width: auto;
+    border-collapse: collapse;
+}
+div.cortar table th {
+    text-align: left;
+    padding-bottom: 5px;
+    width: 0em;
+}
+div.cortar table td {
+    border: 1px solid black;
+    padding-bottom: 5px;
+    padding-top: 5px;
+    width: 0em;
+}
+div.cortar table tbody td {
+    text-align: center;
+}
+div.cortar table tfoot td {
+    padding-left: 5px;
+}
+/*body.tabla*/
+.noprint {
+    color: red;
+}
 
 @media print {
     body > * {page-break-inside: avoid;}
 	body > hr.ocultar {display:none;}
+	body > .instruciones {display:none;}
     span.up, span.down {display:none;}
+    h1 { display: none; }
+    span.noprint {display: none;}
 }
 @page  
 { 

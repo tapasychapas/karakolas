@@ -1,0 +1,48 @@
+{% set cortes=pedido.get_cortes() %}
+
+{% if cortes %}
+
+<div class="cortar">
+<h1>Cortar:</h1>
+
+{% for corte in cortes %}
+
+    <table>
+        <thead>
+            <tr>
+                <th colspan="{{ corte.trozos|length }}">
+                    {{ corte.producto.nombre }} = <span class="noprint">{{ corte.total }}</span>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                {% for trozo in corte.trozos %}
+                    <td style="width: {{trozo.pieza * 70}}px">
+                        {{ trozo.pieza }} / {{ corte.piezas }}<br/>
+                        Cesta {{ trozo.cesta }}
+                    </td>
+                {% endfor %}
+            </tr>
+        </tbody>
+        <tfoot>
+            <tr>
+                {% for trozo in corte.trozos %}
+                    <td>
+                        &#x2248; <span class="noprint">{{ trozo.cantidad }}</span>
+                    </td>
+                {% endfor %}
+            </tr>
+            <tr>
+                {% for trozo in corte.trozos %}
+                    <td>
+                        = <span class="noprint"></span>
+                    </td>
+                {% endfor %}
+            </tr>
+        </tfoot>
+    </table>
+
+{% endfor %}
+</div>
+{% endif %}

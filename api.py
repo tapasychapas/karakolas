@@ -6,6 +6,8 @@ import re
 import sys
 import tempfile
 from datetime import datetime, timedelta
+from fractions import gcd
+from functools import reduce
 from urllib.parse import urlencode, urljoin
 
 import bs4
@@ -85,7 +87,7 @@ class Reparto:
         if self.mas1:
             r = self.patron % (self.cantidad, self.nombre_producto)
             if self.cantidad % 1 != 0:
-                r = re.sub(r"^(\s+)\d+", r"\1\b"+ str(self.cantidad), r)
+                r = re.sub(r"^(\s+)\d+", r"\1\b" + str(self.cantidad), r)
             return r
         else:
             return "  " + self.nombre_producto
@@ -100,6 +102,7 @@ class Producto:
 
         self.pedido = pedido
         self.tipo = 0
+
         if nombre.startswith("*") and nombre.endswith("*"):
             self.tipo = 1
             nombre = nombre[1:-1].strip()
@@ -107,6 +110,8 @@ class Producto:
         #nombre = trim.sub("",nombre)
         self.nombre = nombre.capitalize()
         self.key = nombre.lower()
+
+        self.cortar = self.key == "calabaza"
 
         if self.nombre == u"Cuarto de queso de oveja semicurado (600-700 g.)":
             self.nombre = "Queso de oveja semicurado (piezas de 600-700g)"
@@ -270,12 +275,12 @@ sp = re.compile(r"\s+", re.UNICODE | re.MULTILINE)
 
 class Pedido:
 
-    def __init__(self, ficheros=None):
+    def __init__(self, *ficheros):
         self.productores = []
         self.productos = []
         self.repartos = []
         self.cestas = []
-        self.load(ficheros)
+        self.load(*ficheros)
 
     def get_productores(self, tipo=None):
         if tipo is None:
@@ -288,6 +293,31 @@ class Pedido:
         productores = sorted(productores, key=lambda p: (
             p.order(tipo=tipo), p.nombre))
         return productores
+
+    def get_cortes(self):
+        cortes = []
+        productos = [p for p in self.productos if p.cortar]
+        for p in self.productos:
+            if p.cortar:
+                corte = {}
+                corte["producto"] = p
+                repartos = [
+                    r for r in self.repartos if r.id_producto == p.id_producto]
+                cantidades = [r.cantidad for r in repartos]
+                corte["total"] = sum(cantidades)
+                corte["gcd"] = reduce(gcd, cantidades)
+                corte["piezas"] = int(corte["total"] / corte["gcd"])
+                corte["trozos"] = []
+                for r in repartos:
+                    corte["trozos"].append({
+                        "cantidad": str(r.cantidad).replace(".0", ""),
+                        "pieza": int(r.cantidad / corte["gcd"]),
+                        "cesta": r.cesta,
+                        "parte": 0
+                    })
+                corte["total"] = str(corte["total"]).replace(".0", "")
+                cortes.append(corte)
+        return cortes
 
     def add_producto(self, producto):
         p = Producto(self, producto)
@@ -348,11 +378,7 @@ class Pedido:
         ids_cestas = sorted(set([r.cesta for r in self.repartos]))
         self.cestas = [Cesta(self, c) for c in ids_cestas]
 
-    def load(self, ficheros):
-        if not ficheros:
-            return
-        if isinstance(ficheros, str):
-            ficheros = [ficheros]
+    def load(self, *ficheros):
         for f in ficheros:
             data = get_data(f)
             for hoja in data.items():
@@ -462,14 +488,15 @@ class Karakolas(Session):
                     data[name] = h.attrs["value"]
         return form.attrs["action"], data
 
-    def reparto(self, fecha):
-        self.get("https://karakolas.net/gestion_pedidos/exportar_tabla_reparto_fecha.ods?fecha_reparto=" +
-                 fecha + "&grupo=" + self.grupo)
-        name = None
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".ods") as f:
-            f.write(self.response.content)
-            name = f.name
-        if name:
-            p = Pedido(name)
-            p.fecha = fecha
+    def reparto(self, *fechas):
+        ficheros = []
+        for fecha in fechas:
+            self.get("https://karakolas.net/gestion_pedidos/exportar_tabla_reparto_fecha.ods?fecha_reparto=" +
+                     fecha + "&grupo=" + self.grupo)
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".ods") as f:
+                f.write(self.response.content)
+                ficheros.append(f.name)
+        if len(ficheros) > 0:
+            p = Pedido(*ficheros)
+            p.fecha = sorted(fechas)[-1]
             return p

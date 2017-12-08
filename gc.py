@@ -1,5 +1,4 @@
-#!/usr/bin/python
-# -*- coding: utf-8 -*-
+#!/usr/bin/python3
 
 import argparse
 import json
@@ -21,26 +20,32 @@ sp = re.compile(r"\s+", re.MULTILINE | re.UNICODE)
 trim = re.compile(r"\s*\.\s*", re.MULTILINE | re.UNICODE)
 peso = re.compile(r"^(.*?)(\d+gr)$", re.MULTILINE | re.UNICODE)
 
+lunes = next_weekday(0).strftime("%Y-%m-%d")
 martes = next_weekday(1).strftime("%Y-%m-%d")
+
 parser = argparse.ArgumentParser(description='Pedido del grupo de consumo')
+parser.add_argument('--noftp', action='store_true')
 parser.add_argument('--pesar', action='store_true')
 parser.add_argument(
-    "--fecha", help="Fecha del reparto en formato yyyy-mm-dd", default=martes)
+    "--fecha", nargs='+', help="Fecha del reparto en formato yyyy-mm-dd", default=[lunes, martes])
 parser.add_argument("fichero", nargs='*', help="Fichero de reparto")
 args = parser.parse_args()
 
 if args.fichero:
-    pedido = Pedido(args.fichero)
+    pedido = Pedido(*args.fichero)
 else:
-    print ("Consultando reparto del día " + args.fecha)
+    print ("Consultando reparto del día " + ", ".join(args.fecha))
     user, password, grupo = cfg(".ig_karakolas")
     k = Karakolas(user, password, grupo)
-    pedido = k.reparto(args.fecha)
+    pedido = k.reparto(*args.fecha)
+
+if len(pedido.repartos) == 0:
+    sys.exit("No hay nada que repartir")
 
 j2_env = Environment(loader=FileSystemLoader("templates"), trim_blocks=True)
 out = j2_env.get_template('index.html')
 html = out.render(pedido=pedido)
-with open("out/index_simple.html", "wb") as fh:
+with open("out/simple.html", "wb") as fh:
     fh.write(bytes(html, 'UTF-8'))
 
 
@@ -78,6 +83,7 @@ def get_items(div, s):
     return items, size
 
 soup = bs4.BeautifulSoup(html, "lxml")
+soup.body.attrs["class"] = "tabla"
 
 for s in ("pesar", "nopesar", "albaran"):
     div = soup.select("div." + s)[0]
@@ -118,6 +124,7 @@ def upload(*arg):
             ftp.storbinary('STOR ' + os.path.basename(f), fh)
     ftp.quit()
 
-upload("out/index.html", "out/index_simple.html")
+if not args.noftp:
+    upload("out/index.html", "out/simple.html")
 
 print ("OK!")
