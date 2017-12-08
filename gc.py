@@ -107,11 +107,11 @@ for s in ("pesar", "nopesar", "albaran"):
     for li in table.select("li.ul"):
         li.name = "div"
 
-    for i in range(0,len(tds)-1):
+    for i in range(0, len(tds) - 1):
         children = tds[i].select(" > *")
-        if len(children)>0 and children[-1].name == "h2":
-            tds[i+1].insert(0, children[-1])
-        
+        if len(children) > 0 and children[-1].name == "h2":
+            tds[i + 1].insert(0, children[-1])
+
     div.replace_with(table)
 
 
