@@ -3,7 +3,6 @@
 
 import json
 import re
-import sys
 import tempfile
 from datetime import datetime, timedelta
 from fractions import gcd
@@ -12,34 +11,17 @@ from urllib.parse import urlencode, urljoin
 
 import bs4
 import requests
-from jinja2 import Environment, FileSystemLoader
 from pyexcel_ods import get_data
 
-requests.packages.urllib3.disable_warnings()
+from .clean import clean_producto, clean_productor
 
 sp = re.compile(r"\s+", re.MULTILINE | re.UNICODE)
 trim = re.compile(r"\s*\.\s*", re.MULTILINE | re.UNICODE)
 peso = re.compile(r"^(.*?)(\d+gr)$", re.MULTILINE | re.UNICODE)
 
-
 order1 = ["patata", "cebolla", "zanahoria",
           "ajo (", "puerro", "brócoli", "lombarda", "alcachofa", "calabaza"]
 order2 = ["tarros", "huevos", "güevos"]
-
-
-def next_weekday(weekday):
-    d = datetime.now()
-    days_ahead = weekday - d.weekday()
-    if days_ahead <= 0:
-        days_ahead += 7
-    return d + timedelta(days_ahead)
-
-
-def cfg(f):
-    with open(f) as f:
-        l = f.read().strip()
-        return l.split(" ")
-
 
 def get_cestas(row):
     indices = []
@@ -95,7 +77,7 @@ class Reparto:
 
 class Producto:
 
-    def __init__(self, pedido, nombre):
+    def __init__(self, pedido, nombre, n_productor=None):
         global _id_producto
         _id_producto += 1
         self.id_producto = _id_producto
@@ -104,37 +86,16 @@ class Producto:
         self.tipo = 0
 
         if nombre.startswith("*") and nombre.endswith("*"):
-            self.tipo = 1
             nombre = nombre[1:-1].strip()
-        nombre = sp.sub(" ", nombre)
-        #nombre = trim.sub("",nombre)
-        self.nombre = nombre.capitalize()
-        self.key = nombre.lower()
+            self.tipo = 1
 
+        self.nombre = clean_producto(nombre, productor=n_productor)
+        self.key = nombre.lower()
         self.cortar = self.key == "calabaza"
 
-        if self.nombre == u"Cuarto de queso de oveja semicurado (600-700 g.)":
-            self.nombre = "Queso de oveja semicurado (piezas de 600-700g)"
-        elif self.nombre == "Ajo":
-            self.nombre = "Ajo (250 grs)"
-        elif self.nombre == "Espinaca":
-            self.nombre = "Espinaca (manojos de ½ kg)"
-        elif self.nombre == "Puerro":
-            self.nombre = "Puerro (grupos de 700g)"
-            self.tipo = 1
-        elif self.nombre == "Tomate frito":
-            self.nombre = "Tomate frito (tarros de 300g)"
-        elif self.nombre == "Huevos":
-            self.nombre = "Media docena de huevos (6)"
-        elif self.nombre == "Alubias":
-            self.nombre = "Alubias (bolsa 1kg)"
-        elif self.nombre == "Queso de pasta blanda":
-            self.nombre = "Queso de pasta blanda (pieza de 300g)"
-        elif self.tipo == 1:
+        if self.tipo == 1:
             self.nombre += " (kg)"
 
-        self.nombre = peso.sub(r"\1 \2", self.nombre)
-        self.nombre = sp.sub(" ", self.nombre).strip()
 
     def order(self):
         n = self.nombre.lower()
@@ -179,11 +140,7 @@ class Productor:
         self.id_productor = _id_productor
 
         self.pedido = pedido
-        self.nombre = nombre.upper()
-        if self.nombre.startswith("VEGAN MAIDEN"):
-            self.nombre = "VEGAN MAIDEN"
-        if self.nombre.startswith("SILVANO "):
-            self.nombre = "SILVANO"
+        self.nombre = clean_productor(nombre)
 
     def get_count(self, tipo):
         productos = [p for p in self.pedido.productos if p.id_productor ==
@@ -270,9 +227,6 @@ class Cesta:
         return "Cesta %2d: %2d productos (~ %2d kg)" % (self.id_cesta, productos, peso)
 
 
-sp = re.compile(r"\s+", re.UNICODE | re.MULTILINE)
-
-
 class Pedido:
 
     def __init__(self, *ficheros):
@@ -320,24 +274,9 @@ class Pedido:
         return cortes
 
     def add_producto(self, producto):
-        p = Producto(self, producto)
-        p.id_productor = self.productores[-1].id_productor
         n_productor = self.productores[-1].nombre
-        if n_productor == "VEGAN MAIDEN":
-            p.nombre = p.nombre.split(":")[0]
-            p.nombre = re.sub(
-                r"\.?( 2x\d+| \d+ unid\.| \(paté de tomates secos\)).*", "", p.nombre)
-        elif "SILVANO" in n_productor or n_productor == "EVA - COSMETICA":
-            p.nombre = re.sub(r"\(.*", "", p.nombre)
-            p.nombre = p.nombre.replace(" muy suave ", " ")
-        elif n_productor == "QUESOS ZAMORA":
-            p.nombre = re.sub(r"^Queso de ", "", p.nombre).capitalize()
-            p.nombre = p.nombre.replace(" (piezas de ", " (p. ")
-        p.nombre = re.sub(r"\- (\d+) litros", r"(\1l)", p.nombre)
-        if p.nombre == "Media docena de huevos (6)":
-            p.nombre = "Media docena de huevos"
-        if p.nombre == "Mermelada de cereza ecológica certificada":
-            p.nombre = "Mermelada de cereza ecológica"
+        p = Producto(self, producto, n_productor=n_productor)
+        p.id_productor = self.productores[-1].id_productor
         self.productos.append(p)
 
     def add_reparto(self, cesta, cantidad):
@@ -412,91 +351,3 @@ class Pedido:
                         p = get_text(str(row[r]))
                         self.add_reparto(cestas[i], p)
         self.ajustar()
-
-
-class Session():
-
-    def __init__(self, root=None):
-        self.s = requests.Session()
-        self.s.headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:54.0) Gecko/20100101 Firefox/54.0',
-            "Cache-Control": "no-cache",
-            "Pragma": "no-cache",
-            "Expires": "Thu, 01 Jan 1970 00:00:00 GMT",
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-            'Accept-Language': 'es-ES,es;q=0.8,en-US;q=0.5,en;q=0.3',
-            'Accept-Encoding': 'gzip, deflate',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            "X-Requested-With": "XMLHttpRequest"
-        }
-        self.cookies = None
-        self.root = root
-        if root:
-            self.get(root)
-
-    def get_soup(self):
-        self.soup = bs4.BeautifulSoup(self.response.content, "lxml")
-        return self.soup
-
-    def get(self, url, **kwargs):
-        if self.cookies:
-            kwargs["cookies"] = self.cookies
-        if self.root:
-            url = urljoin(self.root, url)
-        self.response = self.s.get(url, verify=False, **kwargs)
-        return self.response
-
-    def post(self, url, **kwargs):
-        if self.cookies:
-            kwargs["cookies"] = self.cookies
-        if self.root:
-            url = urljoin(self.root, url)
-        self.response = self.s.post(url, verify=False, **kwargs)
-        return self.response
-
-    def get_link(self, reg):
-        l = self.get_soup().find("a", attrs={"href": reg})
-        return urljoin(self.response.url, l.attrs["href"])
-
-
-class Karakolas(Session):
-
-    def __init__(self, user, password, grupo):
-        super().__init__("https://karakolas.net")
-        self.grupo = grupo
-        self.get("https://karakolas.net/user.load/login",
-                 cookies=self.s.cookies.get_dict())
-        url, data = self.get_form(user=user, password=password)
-        self.s.post("https://karakolas.net/user.load/login",
-                    files={'name': ('', 'content')}, data=data)
-        self.get(
-            "https://karakolas.net/gestion_pedidos/gestion_pedidos.load?grupo=" + self.grupo)
-
-    def get_form(self, user=None, password=None):
-        form = self.get_soup().find("form")
-        data = {}
-        for h in form.select("input"):
-            if h.attrs.get("name", None) != None:
-                name = h.attrs["name"]
-                if user and "username" == name:
-                    data[name] = user
-                elif password and "password" == name:
-                    data[name] = password
-                elif "value" in h.attrs:
-                    data[name] = h.attrs["value"]
-        return form.attrs["action"], data
-
-    def reparto(self, *fechas):
-        ficheros = []
-        for fecha in fechas:
-            self.get("https://karakolas.net/gestion_pedidos/exportar_tabla_reparto_fecha.ods?fecha_reparto=" +
-                     fecha + "&grupo=" + self.grupo)
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".ods") as f:
-                f.write(self.response.content)
-                ficheros.append(f.name)
-        if len(ficheros) > 0:
-            p = Pedido(*ficheros)
-            p.fecha = sorted(fechas)[-1]
-            return p

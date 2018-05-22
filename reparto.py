@@ -10,7 +10,7 @@ from ftplib import FTP
 import bs4
 from jinja2 import Environment, FileSystemLoader
 
-from api import Karakolas, Pedido, cfg, next_weekday
+from core.api import Karakolas, Pedido, cfg, next_weekday
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)

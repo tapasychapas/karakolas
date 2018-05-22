@@ -8,10 +8,10 @@
 	<div class="productor">
 	<h2 class="h2{{loop.index}}">{{ productor.nombre }}</h2>
 	<ul>
-		{% for cesta in productor.get_cestas(tipo) %}
-		<li class="ul"><span>{{ cesta.get_nombre() }}</span>
+		{% for producto in productor.get_productos(tipo) %}
+		<li class="ul">{{ producto.nombre }}
 			<ul>
-			{% for reparto in cesta.get_repartos(productor.id_productor, tipo) %}
+			{% for reparto in producto.get_repartos() %}
 				<li>
 					<span>{{ reparto.get_str() }}</span>
 				</li>

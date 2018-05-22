@@ -1,0 +1,33 @@
+---
+title: Productos
+---
+<div id="productos">
+<p>Esta lista de productos está actualizada a fecha {{ data.now.strftime("%d/%m/%Y %H:%M") }} y es solamente orientativa: los precios y la variedad pueden cambiar.<br/>Los precios son por Kg. cuando no se indique lo contrarío.</p>
+
+{% for productor in data.productores %}
+<h1>{{productor.nombre}}</h1>
+
+<table>
+    <thead>
+        <tr>
+        <th class="precio">Precio €</th>
+        <th>Producto</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for producto in productor.get_productos() %}
+        <tr>
+            <td class="precio">{{producto.precio | price_str | safe }}</td>
+            <td>{{producto.nombre}}
+            {% if producto.descripcion %}
+                <span title="{{producto.descripcion.replace('"', "'") }}">&#128712;</span>
+            {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endfor %}
+
+</div>
