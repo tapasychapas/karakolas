@@ -26,17 +26,18 @@ martes = next_weekday(1).strftime("%Y-%m-%d")
 parser = argparse.ArgumentParser(description='Pedido del grupo de consumo')
 parser.add_argument('--noftp', action='store_true')
 parser.add_argument('--pesar', action='store_true')
-parser.add_argument(
-    "--fecha", nargs='+', help="Fecha del reparto en formato yyyy-mm-dd", default=[lunes, martes])
+parser.add_argument("--fecha", nargs='*', help="Fecha del reparto en formato yyyy-mm-dd")
 parser.add_argument("fichero", nargs='*', help="Fichero de reparto")
 args = parser.parse_args()
 
 if args.fichero:
     pedido = Pedido(*args.fichero)
 else:
-    print ("Consultando reparto del día " + ", ".join(args.fecha))
     user, password, grupo = cfg(".ig_karakolas")
     k = Karakolas(user, password, grupo)
+    if not args.fecha:
+        args.fecha = k.fechas()
+    print ("Consultando reparto del día " + ", ".join(args.fecha))
     pedido = k.reparto(*args.fecha)
 
 if len(pedido.repartos) == 0:

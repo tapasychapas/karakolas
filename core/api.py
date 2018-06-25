@@ -115,6 +115,7 @@ class Karakolas(Session):
             with tempfile.NamedTemporaryFile(delete=False, suffix=".ods") as f:
                 f.write(self.response.content)
                 ficheros.append(f.name)
+                print (f.name)
         if len(ficheros) > 0:
             p = Pedido(*ficheros)
             p.fecha = sorted(fechas)[-1]
@@ -143,3 +144,11 @@ class Karakolas(Session):
                 print(pro)
                 productores.append(p)
         return sorted(productores, key=lambda x: (x.orden, len(x.productos), x.nombre))
+
+    def fechas(self):
+        self.get("https://karakolas.net/gestion_pedidos/gestion_pedidos.load?grupo=" + self.grupo)
+        h3s = self.get_soup().findAll("h3", text=re.compile("^\s*\d\d?-\d\d?-\d\d\d\d\s*$"))
+        h3s = set([h3.get_text().strip() for h3 in h3s])
+        fechas = ["-".join(reversed(h3.split("-"))) for h3 in h3s]
+        return fechas
+        
