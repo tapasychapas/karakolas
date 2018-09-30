@@ -1,12 +1,10 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import json
 import re
-import sys
 import tempfile
 from datetime import datetime, timedelta
-from urllib.parse import urlencode, urljoin
+from urllib.parse import urljoin
 
 import bs4
 import requests
@@ -122,33 +120,37 @@ class Karakolas(Session):
             return p
 
     def productores(self):
-        self.get("https://karakolas.net/productores/vista_productores.load?grupo=" + self.grupo)
+        self.get(
+            "https://karakolas.net/productores/vista_productores.load?grupo=" + self.grupo)
         trs = self.get_soup().findAll("tr")
-        self.get("https://karakolas.net/productores/productores_coordinados.load?grupo=" + self.grupo)
+        self.get(
+            "https://karakolas.net/productores/productores_coordinados.load?grupo=" + self.grupo)
         trs = trs + self.get_soup().findAll("tr")
         productores = []
         for tr in trs:
             if "desactivado" in tr.attrs.get("class", []) or tr.find("a") is None:
                 continue
-            pro = sp.sub(" ",tr.find("td").get_text()).strip()
+            pro = sp.sub(" ", tr.find("td").get_text()).strip()
             if pro.upper() in ("TAPAS&CHAPAS", "ASAMBLEA DE DELEGADAS"):
                 continue
-            lista = tr.findAll("a")[-1].attrs["href"].replace(".html?", ".load?")
+            lista = tr.findAll("a")[-1].attrs[
+                "href"].replace(".html?", ".load?")
             self.get(lista)
             if "exportar_productos.csv" in lista:
                 p = ProductorCSV(pro, self.response)
             else:
                 p = ProductorHTML(pro, self.response)
             p.load()
-            if len(p.productos)>0:
+            if len(p.productos) > 0:
                 print(pro)
                 productores.append(p)
         return sorted(productores, key=lambda x: (x.orden, len(x.productos), x.nombre))
 
     def fechas(self):
-        self.get("https://karakolas.net/gestion_pedidos/gestion_pedidos.load?grupo=" + self.grupo)
-        h3s = self.get_soup().findAll("h3", text=re.compile("^\s*\d\d?-\d\d?-\d\d\d\d\s*$"))
+        self.get(
+            "https://karakolas.net/gestion_pedidos/gestion_pedidos.load?grupo=" + self.grupo)
+        h3s = self.get_soup().findAll(
+            "h3", text=re.compile("^\s*\d\d?-\d\d?-\d\d\d\d\s*$"))
         h3s = set([h3.get_text().strip() for h3 in h3s])
         fechas = ["-".join(reversed(h3.split("-"))) for h3 in h3s]
         return fechas
-        

@@ -1,20 +1,13 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import json
-import re
-import tempfile
-from datetime import datetime, timedelta
-from fractions import gcd
-from functools import reduce
-from urllib.parse import urlencode, urljoin
 import csv
+import re
 import tempfile
 
 import bs4
 import requests
 from pyexcel_ods import get_data
-import bs4
 
 from .clean import clean_producto, clean_productor
 
@@ -33,17 +26,18 @@ class Producto:
         self.descripcion = descripcion.strip()
         self.categoria = categoria.strip()
 
-        
     def __hash__(self):
         return hash((self.nombre, self.precio))
 
     def __eq__(self, other):
         return self.nombre == other.nombre and self.precio == self.precio
 
+
 class Familia:
 
     def __init__(self, nombre):
         self.nombre = nombre
+
 
 class Productor:
 
@@ -65,7 +59,8 @@ class Productor:
         pass
 
     def get_productos(self):
-        return sorted(self.productos, key= lambda x: x.nombre)
+        return sorted(self.productos, key=lambda x: x.nombre)
+
 
 class ProductorCSV(Productor):
 
@@ -78,15 +73,14 @@ class ProductorCSV(Productor):
             spamreader = csv.reader(csvfile, delimiter=',', quotechar='"')
             flag = False
             for row in spamreader:
-                if len(row)==0:
+                if len(row) == 0:
                     continue
-                if row[0]=="productoXpedido.nombre":
+                if row[0] == "productoXpedido.nombre":
                     flag = True
                     continue
                 if flag:
                     p = Producto(row[0], row[1], row[4], row[8], self.nombre)
                     self.productos.add(p)
-        
 
 
 class ProductorHTML(Productor):
@@ -95,7 +89,7 @@ class ProductorHTML(Productor):
         self.soup = bs4.BeautifulSoup(self.response.content, "lxml")
         for tr in self.soup.findAll("tr"):
             tds = tr.findAll("td")
-            if len(tds)==0:
+            if len(tds) == 0:
                 continue
             row = [td.get_text() for td in tds]
             p = Producto(row[0], row[3], row[1], row[2], self.nombre)

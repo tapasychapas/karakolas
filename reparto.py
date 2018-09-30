@@ -1,16 +1,18 @@
 #!/usr/bin/python3
 
 import argparse
-import json
 import os
 import re
 import sys
 from ftplib import FTP
 
 import bs4
+import urllib3
 from jinja2 import Environment, FileSystemLoader
 
 from core.api import Karakolas, Pedido, cfg, next_weekday
+
+urllib3.disable_warnings()
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
@@ -26,7 +28,8 @@ martes = next_weekday(1).strftime("%Y-%m-%d")
 parser = argparse.ArgumentParser(description='Pedido del grupo de consumo')
 parser.add_argument('--noftp', action='store_true')
 parser.add_argument('--pesar', action='store_true')
-parser.add_argument("--fecha", nargs='*', help="Fecha del reparto en formato yyyy-mm-dd")
+parser.add_argument("--fecha", nargs='*',
+                    help="Fecha del reparto en formato yyyy-mm-dd")
 parser.add_argument("fichero", nargs='*', help="Fichero de reparto")
 args = parser.parse_args()
 

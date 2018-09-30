@@ -1,13 +1,9 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import json
 import re
-import tempfile
-from datetime import datetime, timedelta
 from fractions import gcd
 from functools import reduce
-from urllib.parse import urlencode, urljoin
 
 import bs4
 import requests
@@ -22,6 +18,7 @@ peso = re.compile(r"^(.*?)(\d+gr)$", re.MULTILINE | re.UNICODE)
 order1 = ["patata", "cebolla", "zanahoria",
           "ajo (", "puerro", "brócoli", "lombarda", "alcachofa", "calabaza"]
 order2 = ["tarros", "huevos", "güevos"]
+
 
 def get_cestas(row):
     indices = []
@@ -95,7 +92,6 @@ class Producto:
 
         if self.tipo == 1:
             self.nombre += " (kg)"
-
 
     def order(self):
         n = self.nombre.lower()
@@ -219,7 +215,8 @@ class Cesta:
         return repartos
 
     def get_catidades(self):
-        repartos = [r for r in self.pedido.repartos if r.cesta == self.id_cesta]
+        repartos = [
+            r for r in self.pedido.repartos if r.cesta == self.id_cesta]
         productos = len(repartos)
         peso = sum([r.cantidad for r in repartos if r.tipo == 1])
         if peso == 0:

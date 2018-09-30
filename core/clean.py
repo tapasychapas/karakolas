@@ -1,13 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-import json
 import re
-import tempfile
-from datetime import datetime, timedelta
-from fractions import gcd
-from functools import reduce
-from urllib.parse import urlencode, urljoin
 
 import bs4
 import requests
@@ -17,10 +11,11 @@ sp = re.compile(r"\s+", re.MULTILINE | re.UNICODE)
 trim = re.compile(r"\s*\.\s*", re.MULTILINE | re.UNICODE)
 peso = re.compile(r"^(.*?)(\d+gr)$", re.MULTILINE | re.UNICODE)
 
+
 def clean_producto(nombre, productor=None):
 
         nombre = sp.sub(" ", nombre.replace("_", " ")).strip()
-        #nombre = trim.sub("",nombre)
+        # nombre = trim.sub("",nombre)
         nombre = nombre.capitalize()
 
         if nombre == u"Cuarto de queso de oveja semicurado (600-700 g.)":
@@ -60,6 +55,7 @@ def clean_producto(nombre, productor=None):
 
         return nombre
 
+
 def clean_productor(nombre):
         nombre = sp.sub(" ", nombre.replace("_", " ")).strip().upper()
         if nombre.startswith("VEGAN MAIDEN"):
@@ -67,4 +63,3 @@ def clean_productor(nombre):
         if nombre.startswith("SILVANO "):
             nombre = "SILVANO"
         return nombre
-

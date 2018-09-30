@@ -1,12 +1,9 @@
 #!/usr/bin/python3
 
-import argparse
-import json
 import os
 import re
-import sys
-
 from datetime import datetime
+
 import bs4
 from jinja2 import Environment, FileSystemLoader
 
