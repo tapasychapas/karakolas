@@ -48,16 +48,20 @@ $(document).ready(function(){
 	if ($("table").length==0) return;
     $("div.cortar table").draggable().css("cursor", "move");
 
-    _do_group("table.pesar, table.nopesar");
+    jqMoveItems = "table.pesar"
+    jqMoveProdu = "table.nopesar, table.albaran"
 
-    var tds=$("table.albaran td");
-    tds.sortable({
-        items: "div",
-        connectWith: tds
-    }).addClass("move");
+    _do_group(jqMoveItems);
 
+    $(jqMoveProdu).each(function(){
+        var tds = $(this).find("td");
+        tds.sortable({
+            items: "div.productor",
+            connectWith: tds
+        }).addClass("move");
+    });
 
-    $("table.pesar, table.nopesar").each(function(){
+    $(jqMoveItems).each(function(){
         var tds = $(this).find("td");
         tds.sortable({
             items: "div:not(.unico)",
@@ -70,7 +74,7 @@ $(document).ready(function(){
         }).addClass("move");
     });
 
-    $("table.pesar, table.nopesar").find("h2").each(function() {
+    $(jqMoveItems).find("h2").each(function() {
         var h2 = $(this);
         h2.append("<span class='up'>&#x2b06;</span><span class='down'>&#x2b07;</span>");
     })

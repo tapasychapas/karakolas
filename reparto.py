@@ -4,7 +4,6 @@ import argparse
 import os
 import re
 import sys
-from ftplib import FTP
 
 import bs4
 import urllib3
@@ -26,7 +25,6 @@ lunes = next_weekday(0).strftime("%Y-%m-%d")
 martes = next_weekday(1).strftime("%Y-%m-%d")
 
 parser = argparse.ArgumentParser(description='Pedido del grupo de consumo')
-parser.add_argument('--noftp', action='store_true')
 parser.add_argument('--pesar', action='store_true')
 parser.add_argument("--fecha", nargs='*',
                     help="Fecha del reparto en formato yyyy-mm-dd")
@@ -40,6 +38,8 @@ else:
     k = Karakolas(user, password, grupo)
     if not args.fecha:
         args.fecha = k.fechas()
+        if args.fecha:
+            args.fecha = sorted(args.fecha)[:1]
     print ("Consultando reparto del día " + ", ".join(args.fecha))
     pedido = k.reparto(*args.fecha)
 
@@ -73,7 +73,7 @@ def get_table(cls, h1):
 def get_items(div, s):
     size = 0
     items = []
-    if s == "albaran":
+    if s in ("albaran", "nopesar"):
         items = div.select("div.productor")  # findAll(["h2", "ul"])
         size = len(div.findAll(["h2", "li"]))
     else:
@@ -104,7 +104,7 @@ for s in ("pesar", "nopesar", "albaran"):
         td.append(i)
         if i.name == "h2":
             count += 1
-        elif s == "albaran":
+        elif s in ("nopesar", "albaran"):
             count += 1 + len(i.findAll("li"))
         elif "ul" in i.attrs.get("class", []):
             count += 1 + len(i.findAll("li"))
@@ -121,19 +121,5 @@ for s in ("pesar", "nopesar", "albaran"):
 
 with open("out/index.html", "w", encoding='utf-8') as f:
     f.write(str(soup))
-
-
-def upload(*arg):
-    host, user, passwd, path = cfg(".ig_ftp")
-    ftp = FTP(host)
-    ftp.login(user=user, passwd=passwd)
-    ftp.cwd(path)
-    for f in arg:
-        with open(f, 'rb') as fh:
-            ftp.storbinary('STOR ' + os.path.basename(f), fh)
-    ftp.quit()
-
-if not args.noftp:
-    upload("out/index.html", "out/simple.html")
 
 print ("OK!")
