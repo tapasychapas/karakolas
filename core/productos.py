@@ -59,7 +59,7 @@ class Productor:
         pass
 
     def get_productos(self):
-        return sorted(self.productos, key=lambda x: x.nombre)
+        return sorted(self.productos, key=lambda x: (x.nombre, x.descripcion))
 
 
 class ProductorCSV(Productor):
