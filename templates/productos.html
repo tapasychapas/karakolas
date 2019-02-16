@@ -2,7 +2,7 @@
 title: Productos
 ---
 <div id="productos">
-<p>Esta lista de productos está actualizada a fecha {{ data.now.strftime("%d/%m/%Y %H:%M") }} y es solamente orientativa: los precios y la variedad pueden cambiar.<br/>Los precios son por Kg. cuando no se indique lo contrarío.</p>
+<p>Esta lista de productos está actualizada a fecha {{ data.now.strftime("%d/%m/%Y") }} y es solamente orientativa: los precios y la variedad pueden cambiar.<br/>Los precios son por Kg. cuando no se indique lo contrarío.</p>
 
 {% for productor in data.productores %}
 <h1>{{productor.nombre}}</h1>
