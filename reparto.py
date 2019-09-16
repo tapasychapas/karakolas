@@ -90,7 +90,10 @@ soup = bs4.BeautifulSoup(html, "lxml")
 soup.body.attrs["class"] = "tabla"
 
 for s in ("pesar", "nopesar", "albaran"):
-    div = soup.select("div." + s)[0]
+    div = soup.select("div." + s)
+    if len(div)==0:
+        continue
+    div=div[0]
     table = get_table(s, div.find("h1"))
     tds = table.findAll("td")
 
@@ -112,7 +115,7 @@ for s in ("pesar", "nopesar", "albaran"):
         li.name = "div"
 
     for i in range(0, len(tds) - 1):
-        children = tds[i].select(" > *")
+        children = tds[i].select(":scope > *")
         if len(children) > 0 and children[-1].name == "h2":
             tds[i + 1].insert(0, children[-1])
 
