@@ -2,4 +2,4 @@ beautifulsoup4==4.6.3
 Jinja2==2.10
 pyexcel_ods==0.3.3
 requests==2.9.1
-urllib3==1.22
+urllib3==1.24.2
