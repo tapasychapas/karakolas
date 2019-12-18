@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import argparse
 import os
@@ -25,7 +25,6 @@ lunes = next_weekday(0).strftime("%Y-%m-%d")
 martes = next_weekday(1).strftime("%Y-%m-%d")
 
 parser = argparse.ArgumentParser(description='Pedido del grupo de consumo')
-parser.add_argument('--pesar', action='store_true')
 parser.add_argument("--fecha", nargs='*',
                     help="Fecha del reparto en formato yyyy-mm-dd")
 parser.add_argument("fichero", nargs='*', help="Fichero de reparto")
@@ -40,7 +39,7 @@ else:
         args.fecha = k.fechas()
         if args.fecha:
             args.fecha = sorted(args.fecha)[:1]
-    print ("Consultando reparto del día " + ", ".join(args.fecha))
+    print("Consultando reparto del día " + ", ".join(args.fecha))
     pedido = k.reparto(*args.fecha)
 
 if len(pedido.repartos) == 0:
@@ -86,14 +85,15 @@ def get_items(div, s):
                 items.append(i)
     return items, size
 
+
 soup = bs4.BeautifulSoup(html, "lxml")
 soup.body.attrs["class"] = "tabla"
 
 for s in ("pesar", "nopesar", "albaran"):
     div = soup.select("div." + s)
-    if len(div)==0:
+    if len(div) == 0:
         continue
-    div=div[0]
+    div = div[0]
     table = get_table(s, div.find("h1"))
     tds = table.findAll("td")
 
@@ -125,4 +125,4 @@ for s in ("pesar", "nopesar", "albaran"):
 with open("out/index.html", "w", encoding='utf-8') as f:
     f.write(str(soup))
 
-print ("OK!")
+print("OK!")

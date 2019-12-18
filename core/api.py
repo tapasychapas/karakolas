@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import re
@@ -113,7 +113,7 @@ class Karakolas(Session):
             with tempfile.NamedTemporaryFile(delete=False, suffix=".ods") as f:
                 f.write(self.response.content)
                 ficheros.append(f.name)
-                print (f.name)
+                print(f.name)
         if len(ficheros) > 0:
             p = Pedido(*ficheros)
             p.fecha = sorted(fechas)[-1]

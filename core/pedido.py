@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import re
@@ -33,6 +33,7 @@ def get_cestas(row):
 
 def get_text(s):
     return sp.sub(" ", s.replace("_", " ")).strip()
+
 
 _id_reparto = 0
 _id_producto = 0

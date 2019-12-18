@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import os
 import re
@@ -36,7 +36,8 @@ def price_str(s):
     s = s.replace(".00", "<span class='ceros'>.00</span>")
     return s
 
-print ("Consultando productos disponibles")
+
+print("Consultando productos disponibles")
 user, password, grupo = cfg(".ig_karakolas")
 k = Karakolas(user, password, grupo)
 productores = k.productores()
