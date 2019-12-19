@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import argparse
 import os
 import re
 from datetime import datetime
@@ -8,7 +9,6 @@ import bs4
 from jinja2 import Environment, FileSystemLoader
 
 from core.api import Karakolas, Pedido, cfg
-import argparse
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
@@ -17,7 +17,8 @@ os.chdir(dname)
 default_out = "../tapasychapas.github.io/productos/index.md"
 parser = argparse.ArgumentParser(description='Productos del grupo de consumo')
 if os.path.isfile(default_out):
-    parser.add_argument("salida", nargs='?', help="Fichero de salida", default=default_out)
+    parser.add_argument("salida", nargs='?',
+                        help="Fichero de salida", default=default_out)
 else:
     parser.add_argument("salida", help="Fichero de salida")
 args = parser.parse_args()
