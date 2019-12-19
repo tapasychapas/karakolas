@@ -47,7 +47,26 @@ Y el parámetro `fichero` es para evitar conectarse a `karakolas` y generar
 la tabla de reparto directamente de un fichero previamente descargado
 de `karakolas`
 
-En cualquier caso, el paso final es entrar en `out/index.html` y seguir
-las intrucciones hay detalladas para obtener el producto final.
+En cualquier caso, el paso final es entrar en `out/index.html` (\*) y seguir
+las instrucciones ahí detalladas para obtener el producto final.
+
+(\*) Usa [Firefox](https://www.mozilla.org/es-ES/firefox/new/) o [Chromium](https://www.chromium.org/)
 
 ## Productos
+
+```console
+$ ./productos.py  --help
+usage: productos.py [-h] [salida]
+
+Productos del grupo de consumo
+
+positional arguments:
+  salida      Fichero de salida
+
+optional arguments:
+  -h, --help  show this help message and exit
+```
+
+Crea un [listado de los productos ofertados por el grupo (como este)](https://tapasychapas.github.io/productos/)
+en el parámetro `salida`, o en `../tapasychapas.github.io/productos/index.md` si
+el fichero existe previamente y no se informa el parámetro `salida`.

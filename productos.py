@@ -8,10 +8,19 @@ import bs4
 from jinja2 import Environment, FileSystemLoader
 
 from core.api import Karakolas, Pedido, cfg
+import argparse
 
 abspath = os.path.abspath(__file__)
 dname = os.path.dirname(abspath)
 os.chdir(dname)
+
+default_out = "../tapasychapas.github.io/productos/index.md"
+parser = argparse.ArgumentParser(description='Productos del grupo de consumo')
+if os.path.isfile(default_out):
+    parser.add_argument("salida", nargs='?', help="Fichero de salida", default=default_out)
+else:
+    parser.add_argument("salida", help="Fichero de salida")
+args = parser.parse_args()
 
 sp = re.compile(r"\s+", re.MULTILINE | re.UNICODE)
 trim = re.compile(r"\s*\.\s*", re.MULTILINE | re.UNICODE)
@@ -48,5 +57,5 @@ j2_env.filters['price_str'] = price_str
 
 out = j2_env.get_template('productos.html')
 html = out.render(data={"now": datetime.now(), "productores": productores})
-with open("../tapasychapas.github.io/productos/index.md", "wb") as fh:
+with open(args.salida, "wb") as fh:
     fh.write(bytes(html, 'UTF-8'))
