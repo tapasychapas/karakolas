@@ -6,4 +6,4 @@ pyexcel-ezodf==0.3.4
 pyexcel-io==0.5.4
 pyexcel-ods3==0.5.2
 requests==2.20.0
-urllib3==1.24.2
+urllib3==1.26.5
